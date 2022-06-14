@@ -1,0 +1,33 @@
+version: "3"
+services:
+  mysql:
+    container_name: mysql-container
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "mkt-mail-marketing"
+  api:
+    container_name: api-container
+    image: node:12
+    working_dir: /usr/src/mkt-mail-marketing
+    restart: always
+    command: bash -c "npm install --only=prod && npm run debug"
+    environment:
+      - DATABASE_HOST=localhost
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=root
+      - DATABASE_NAME=mkt-mail-marketing
+    volumes:
+      - ./dist/:/usr/src/mkt-mail-marketing/dist/
+      - ./package.json:/usr/src/mkt-mail-marketing/package.json
+    ports:
+      - "5050:5050"
+      - "9222:9222"
+    links:
+      - mysql
